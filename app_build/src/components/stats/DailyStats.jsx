@@ -27,27 +27,26 @@ export default function DailyStats() {
         <div className="text-4xl font-black">{formatCurrency(todayGroup.total)}</div>
       </div>
       
-      <div className="mt-4">
-        <div className="px-6 py-2 text-sm font-bold text-slate-500 uppercase tracking-wider">
-          Today's Activity
-        </div>
-        <TransactionList transactions={todayGroup.txs} />
-      </div>
-      
-      <div className="mt-4">
-        <div className="px-6 py-2 text-sm font-bold text-slate-500 uppercase tracking-wider">
-          Previous Days
-        </div>
-        {days.filter(d => !isToday(d.date)).slice(0, 5).map(day => (
-          <div key={day.date.toISOString()} className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
-            <div className="font-semibold text-slate-800">
-              {new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(day.date)}
+      <div className="mt-4 space-y-6">
+        {days.map(day => {
+          const isCurrentDay = isToday(day.date);
+          const dayName = isCurrentDay 
+            ? "Today's Activity" 
+            : new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(day.date);
+            
+          return (
+            <div key={day.date.toISOString()}>
+              <div className="px-6 py-2 flex justify-between items-center">
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{dayName}</span>
+                {!isCurrentDay && <span className="text-sm font-bold text-slate-800">{formatCurrency(day.total)}</span>}
+              </div>
+              <TransactionList transactions={day.txs} />
             </div>
-            <div className="font-bold text-slate-500">
-              {formatCurrency(day.total)}
-            </div>
-          </div>
-        ))}
+          );
+        })}
+        {days.length === 0 && (
+          <div className="text-center text-slate-400 py-8">No daily activity yet.</div>
+        )}
       </div>
     </div>
   );

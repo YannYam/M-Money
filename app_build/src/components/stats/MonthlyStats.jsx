@@ -42,11 +42,24 @@ export default function MonthlyStats() {
         </div>
       </div>
       
-      <div className="mt-4">
-        <div className="px-6 py-2 text-sm font-bold text-slate-500 uppercase tracking-wider">
-          All Month Activity
-        </div>
-        <TransactionList transactions={thisMonthGroup.txs} />
+      <div className="mt-4 space-y-6">
+        {months.map(month => {
+          const isCurrentMonth = isThisMonth(month.date);
+          const monthName = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(month.date);
+          
+          return (
+            <div key={month.date.toISOString()}>
+              <div className="px-6 py-2 flex justify-between items-center">
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{monthName}</span>
+                {!isCurrentMonth && <span className="text-sm font-bold text-slate-800">{formatCurrency(month.total)}</span>}
+              </div>
+              <TransactionList transactions={month.txs} />
+            </div>
+          );
+        })}
+        {months.length === 0 && (
+          <div className="text-center text-slate-400 py-8">No monthly activity yet.</div>
+        )}
       </div>
     </div>
   );
