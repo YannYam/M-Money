@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { formatCurrency } from '../../utils/helpers';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, X } from 'lucide-react';
 
 export default function QuickTapGrid() {
   const { presets, addTransaction } = useAppContext();
@@ -20,6 +20,12 @@ export default function QuickTapGrid() {
     }
   };
 
+  const handleCancel = (e) => {
+    e.stopPropagation();
+    setActivePreset(null);
+    setQuantity(1);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4 px-6 py-4">
       {presets.map(p => {
@@ -29,7 +35,7 @@ export default function QuickTapGrid() {
           <button
             key={p.id}
             onClick={() => handleTap(p)}
-            className={`flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-200 shadow-sm
+            className={`relative flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-200 shadow-sm
               ${isActive ? 'bg-slate-800 text-white scale-105 shadow-md' : 'bg-white text-slate-700 hover:bg-slate-50'}
             `}
           >
@@ -48,10 +54,18 @@ export default function QuickTapGrid() {
                 
                 {/* Confirm button overlay */}
                 <div 
-                  className="absolute bottom-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-lg"
+                  className="absolute bottom-2 right-2 bg-green-500 text-white rounded-full p-1.5 shadow-lg"
                   onClick={() => handleTap(p)}
                 >
                   <Plus size={16} />
+                </div>
+                
+                {/* Cancel button overlay */}
+                <div 
+                  className="absolute bottom-2 left-2 bg-slate-600 text-white rounded-full p-1.5 shadow-lg"
+                  onClick={handleCancel}
+                >
+                  <X size={16} />
                 </div>
               </div>
             ) : (

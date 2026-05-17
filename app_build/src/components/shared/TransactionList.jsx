@@ -30,7 +30,11 @@ export default function TransactionList({ transactions, onUndo, limit }) {
             </div>
             {onUndo && (
               <button 
-                onClick={() => onUndo(tx.id)}
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to delete this expense?")) {
+                    onUndo(tx.id);
+                  }
+                }}
                 className="text-slate-300 hover:text-red-500 transition-colors p-1"
                 aria-label="Undo transaction"
               >

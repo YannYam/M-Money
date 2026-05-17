@@ -11,10 +11,28 @@ const DEFAULT_PRESETS = [
 ];
 
 export const AppProvider = ({ children }) => {
-  const [budget, setBudget] = useState(() => {
-    const saved = localStorage.getItem('ls_budget');
-    return saved ? parseInt(saved, 10) : null;
+  const [budget, setBudgetState] = useState(() => {
+    const currentMonth = `${new Date().getFullYear()}-${new Date().getMonth()}`;
+    const savedData = localStorage.getItem('ls_budget_data');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.month === currentMonth) return parsed.amount;
+      } catch (e) {}
+    }
+    // Fallback for old simple number format
+    const oldSaved = localStorage.getItem('ls_budget');
+    if (oldSaved && !savedData) {
+       return parseInt(oldSaved, 10);
+    }
+    return null;
   });
+
+  const setBudget = (amount) => {
+    const currentMonth = `${new Date().getFullYear()}-${new Date().getMonth()}`;
+    setBudgetState(amount);
+    localStorage.setItem('ls_budget_data', JSON.stringify({ month: currentMonth, amount }));
+  };
 
   const [transactions, setTransactions] = useState(() => {
     const saved = localStorage.getItem('ls_transactions');
@@ -28,9 +46,8 @@ export const AppProvider = ({ children }) => {
 
   const [activeTab, setActiveTab] = useState('home');
 
-  useEffect(() => {
-    if (budget !== null) localStorage.setItem('ls_budget', budget);
-  }, [budget]);
+  // We no longer use the simple 'ls_budget' effect since we handle it in setBudget
+
 
   useEffect(() => {
     localStorage.setItem('ls_transactions', JSON.stringify(transactions));
