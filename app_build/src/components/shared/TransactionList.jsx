@@ -38,8 +38,8 @@ export default function TransactionList({ transactions, onUndo, limit }) {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="font-bold text-slate-800">
-                {formatCurrency(tx.amount * (tx.quantity || 1))}
+              <div className={`font-bold ${tx.type === 'income' ? 'text-green-600' : 'text-slate-800'}`}>
+                {tx.type === 'income' ? '+' : ''}{formatCurrency(tx.amount * (tx.quantity || 1))}
               </div>
               {onUndo && (
                 <button 

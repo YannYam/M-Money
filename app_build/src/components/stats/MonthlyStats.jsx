@@ -11,14 +11,20 @@ export default function MonthlyStats() {
   const grouped = transactions.reduce((acc, tx) => {
     const d = new Date(tx.timestamp);
     const key = `${getYear(d)}-${getMonth(d)}`;
-    if (!acc[key]) acc[key] = { date: d, total: 0, txs: [] };
-    acc[key].total += (tx.amount * (tx.quantity || 1));
+    if (!acc[key]) acc[key] = { date: d, total: 0, income: 0, txs: [] };
+    
+    if (tx.type === 'income') {
+      acc[key].income += (tx.amount * (tx.quantity || 1));
+    } else {
+      acc[key].total += (tx.amount * (tx.quantity || 1));
+    }
+    
     acc[key].txs.push(tx);
     return acc;
   }, {});
 
   const months = Object.values(grouped).sort((a, b) => b.date - a.date);
-  const thisMonthGroup = months.find(m => isThisMonth(m.date)) || { total: 0, txs: [], date: new Date() };
+  const thisMonthGroup = months.find(m => isThisMonth(m.date)) || { total: 0, income: 0, txs: [], date: new Date() };
 
   const daysInMonth = getDaysInMonth(thisMonthGroup.date);
   const currentDay = isThisMonth(thisMonthGroup.date) ? new Date().getDate() : daysInMonth;
@@ -27,8 +33,11 @@ export default function MonthlyStats() {
   return (
     <div className="pb-8">
       <div className="bg-slate-800 text-white pt-12 pb-8 px-6 text-center">
-        <h2 className="text-sm uppercase tracking-widest font-semibold text-slate-400 mb-2">This Month</h2>
+        <h2 className="text-sm uppercase tracking-widest font-semibold text-slate-400 mb-2">Spent This Month</h2>
         <div className="text-4xl font-black">{formatCurrency(thisMonthGroup.total)}</div>
+        {thisMonthGroup.income > 0 && (
+          <div className="text-sm font-medium text-green-400 mt-2">+{formatCurrency(thisMonthGroup.income)} Income</div>
+        )}
         
         <div className="mt-6 flex justify-center gap-8">
           <div>
@@ -51,7 +60,10 @@ export default function MonthlyStats() {
             <div key={month.date.toISOString()}>
               <div className="px-6 py-2 flex justify-between items-center">
                 <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{monthName}</span>
-                {!isCurrentMonth && <span className="text-sm font-bold text-slate-800">{formatCurrency(month.total)}</span>}
+                <div className="flex gap-3">
+                  {month.income > 0 && <span className="text-sm font-bold text-green-500">+{formatCurrency(month.income)}</span>}
+                  {!isCurrentMonth && <span className="text-sm font-bold text-slate-800">{formatCurrency(month.total)}</span>}
+                </div>
               </div>
               <TransactionList transactions={month.txs} />
             </div>

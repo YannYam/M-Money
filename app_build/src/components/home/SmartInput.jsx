@@ -6,19 +6,36 @@ import { Plus } from 'lucide-react';
 export default function SmartInput() {
   const { addTransaction } = useAppContext();
   const [input, setInput] = useState('');
+  const [txType, setTxType] = useState('expense');
 
   const parsed = parseShorthand(input);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (parsed.amount > 0) {
-      addTransaction(parsed.amount, parsed.text, 1);
+      addTransaction(parsed.amount, parsed.text || (txType === 'income' ? 'Income' : 'Expense'), 1, txType);
       setInput('');
     }
   };
 
   return (
     <div className="px-6 py-4">
+      <div className="flex gap-2 mb-3">
+        <button 
+          type="button" 
+          onClick={() => setTxType('expense')}
+          className={`flex-1 py-1.5 text-xs uppercase tracking-wider font-bold rounded-lg transition-colors ${txType === 'expense' ? 'bg-slate-800 text-white shadow-sm' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+        >
+          Expense
+        </button>
+        <button 
+          type="button" 
+          onClick={() => setTxType('income')}
+          className={`flex-1 py-1.5 text-xs uppercase tracking-wider font-bold rounded-lg transition-colors ${txType === 'income' ? 'bg-green-500 text-white shadow-sm' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+        >
+          Income
+        </button>
+      </div>
       <form onSubmit={handleSubmit} className="relative">
         <input
           type="text"

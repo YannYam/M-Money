@@ -12,8 +12,13 @@ export default function SafeToSpend() {
     return getMonth(d) === getMonth(now) && getYear(d) === getYear(now);
   });
 
-  const spentThisMonth = currentMonthTx.reduce((sum, t) => sum + (t.amount * (t.quantity || 1)), 0);
-  const remaining = (budget || 0) - spentThisMonth;
+  const expensesThisMonth = currentMonthTx
+    .filter(t => t.type !== 'income')
+    .reduce((sum, t) => sum + (t.amount * (t.quantity || 1)), 0);
+  const incomeThisMonth = currentMonthTx
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + (t.amount * (t.quantity || 1)), 0);
+  const remaining = (budget || 0) + incomeThisMonth - expensesThisMonth;
 
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -21,8 +26,9 @@ export default function SafeToSpend() {
       <div className={`text-5xl font-black tracking-tight ${remaining < 0 ? 'text-red-500' : 'text-slate-800'}`}>
         {formatCurrency(remaining)}
       </div>
-      <p className="text-slate-400 mt-3 text-sm">
-        {formatCurrency(spentThisMonth)} spent so far
+      <p className="text-slate-400 mt-3 text-sm flex gap-4 justify-center">
+        <span>{formatCurrency(expensesThisMonth)} spent</span>
+        {incomeThisMonth > 0 && <span className="text-green-500">+{formatCurrency(incomeThisMonth)} income</span>}
       </p>
     </div>
   );

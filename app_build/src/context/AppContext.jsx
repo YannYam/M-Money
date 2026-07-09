@@ -57,12 +57,13 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('ls_presets', JSON.stringify(presets));
   }, [presets]);
 
-  const addTransaction = (amount, title, quantity = 1) => {
+  const addTransaction = (amount, title, quantity = 1, type = 'expense') => {
     const newTx = {
       id: uuidv4(),
       amount,
       title,
       quantity,
+      type,
       timestamp: Date.now()
     };
     setTransactions([newTx, ...transactions]);
